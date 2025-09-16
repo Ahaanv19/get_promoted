@@ -7,7 +7,7 @@ import java.io.File;
 import javax.imageio.ImageIO;
 
 import com.open.spring.hacks.promotion.Camera;
-import com.open.spring.hacks.promotion.Function.*;
+import com.open.spring.hacks.promotion.Function;
 
 class Transform {
     float x, y;
@@ -76,15 +76,30 @@ class Qualities {
     }
 }
 
+
+@RestController
+@RequestMapping("/promotion")
+@CrossOrigin(origins = "*")
 public class Sprite {
 
-    public static void main(String[] args) {
-        Transform t = new Transform();
-        ImageWrapper img = new ImageWrapper("./main/resources/static/images/promotion-imgs/null-image.png");
-        Hitbox hb = new Hitbox(img.getWidth(), img.height());
-        hb.MatchHitboxToImage(img);
+    @GetMapping("/sprite")
+    public Map<String, Object> getSprite() {
+        Map<String, Object> spriteData = new HashMap<>();
+        Map<String, Object> transform = new HashMap<>();
+        transform.put("x", 100);
+        transform.put("y", 200);
+        transform.put("xv", 0);
+        transform.put("yv", 0);
+        transform.put("rotation", 0);
+        transform.put("scaleX", 1);
+        transform.put("scaleY", 1);
 
-        Qualities q = new Qualities(1);
+        spriteData.put("transform", transform);
+        spriteData.put("sprite", "promotion-imgs/null-image.png");
+        spriteData.put("hitbox", Map.of("width", 64, "height", 64));
+        spriteData.put("qualities", Map.of("isVisible", true, "isCollidable", true, "isStatic", true, "id", 1));
+
+        return spriteData;
     }
 
     public void update() {
@@ -94,12 +109,14 @@ public class Sprite {
         this.transform.y += this.transform.yv;
     }
 
-    public void getOnscreenPosition(Camera camera) {
+    public float getOnscreenPosition(Camera camera) {
         float onscreenX, onscreenY = Rotate(this.transform.x - camera.transform.x, this.transform.y - camera.transform.y, -camera.transform.rotation);
         onscreenX = (this.transform.x - camera.transform.x) * camera.transform.zoom;
         onscreenY = (this.transform.y - camera.transform.y) * camera.transform.zoom;
         float onscreenScaleX = this.transform.scaleX * camera.transform.zoom;
         float onscreenScaleY = this.transform.scaleY * camera.transform.zoom;
         float onscreenRotation = this.transform.rotation - camera.transform.rotation;
+        
+        return onscreenX, onscreenY, onscreenScaleX, onscreenScaleY, onscreenRotation;
     }
 }
